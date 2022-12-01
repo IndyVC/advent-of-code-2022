@@ -1,0 +1,1 @@
+{"version":3,"file":"preprocessing.js","sourceRoot":"","sources":["../../src/calorie-counting/preprocessing.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,YAAY,EAAE,MAAM,IAAI,CAAC;AAElC,MAAM,UAAU,SAAS;IACvB,MAAM,QAAQ,GAAG,YAAY,CAAC,gBAAgB,CAAC,CAAC,QAAQ,EAAE,CAAC;IAE3D,OAAO,CAAC,GAAG,CAAC,QAAQ,EAAE,OAAO,CAAC,CAAC;AACjC,CAAC"}

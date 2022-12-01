@@ -1,3 +1,5 @@
-import { amahol } from "./helper";
+import { part1, part2 } from "./calorie-counting";
 
-amahol();
+// day 1
+console.log(part1());
+console.log(part2());
