@@ -1,4 +1,4 @@
-import { part1, part2 } from "./rock-paper-scissors/index";
+import { part1, part2 } from "./rugsack-reorganization";
+
 // day 1
-console.log(part1());
-console.log(part2());
+console.log(part1(), part2());
