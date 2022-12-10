@@ -1,107 +1,78 @@
-import fs from "fs";
+import fs, { Dir } from "fs";
+type Direction = "U" | "L" | "R" | "D";
 
-type Coord = {
-  x: number;
-  y: number;
-};
+class Rope {
+  knots: Knot[];
 
-export function part1() {
-  const raw = fs.readFileSync("src/rope-bridge/motions.txt").toString();
-  const instructions = raw.split("\n");
+  constructor(count: number) {
+    this.knots = new Array(count).fill(null).map((_, i) => new Knot(0, 0, i));
+  }
 
-  const tails: Coord[] = [];
-  const knots: Coord[] = [
-    { x: 0, y: 0 },
-    { x: 0, y: 0 },
-    { x: 0, y: 0 },
-    { x: 0, y: 0 },
-    { x: 0, y: 0 },
-    { x: 0, y: 0 },
-    { x: 0, y: 0 },
-    { x: 0, y: 0 },
-    { x: 0, y: 0 },
-    { x: 0, y: 0 },
-  ];
-
-  for (const instruction of instructions) {
-    const [direction, amount] = instruction.split(" ");
-    console.log(`------------ ${direction} ${amount} --------------`);
-    for (let i = 0; i < parseInt(amount); i++) {
-      let old: Coord = null;
-      for (let k = 0; k < knots.length; k++) {
-        const knot = knots[k];
-        const copy = { ...knot };
-        const ref = knots[k - 1] ?? null;
-        const linked = k === 0 ? true : isLinked(knot, ref);
-        if (!linked || k === 0) move(direction, knot, ref, old);
-        old = { ...copy };
-        console.log(k, knot);
-        if (k === knots.length - 1) tails.push({ ...knot });
-      }
-      console.log("--moved--");
+  moveHead(direction: Direction) {
+    const head = this.knots[0];
+    switch (direction) {
+      case "U":
+        head.y += 1;
+        break;
+      case "R":
+        head.x += 1;
+        break;
+      case "D":
+        head.y -= 1;
+        break;
+      case "L":
+        head.x -= 1;
+        break;
     }
   }
 
-  const visited: { [key: string]: number } = {};
+  moveKnot(knot: Knot, ref: Knot) {
+    if (!knot.isTouching(ref)) {
+      const xDistance = ref.x - knot.x;
+      const yDistance = ref.y - knot.y;
+      knot.x += Math.abs(xDistance) >= 1 ? Math.sign(xDistance) : 0;
+      knot.y += Math.abs(yDistance) >= 1 ? Math.sign(yDistance) : 0;
+    }
+  }
+
+  get tail() {
+    return this.knots[this.knots.length - 1];
+  }
+}
+
+class Knot {
+  constructor(public x: number, public y: number, public i: number) {}
+
+  isTouching(knot: Knot) {
+    return Math.abs(knot.x - this.x) <= 1 && Math.abs(knot.y - this.y) <= 1;
+  }
+}
+
+export function part1() {
+  const knotCount = 10;
+  const rope = new Rope(knotCount);
+  const raw = fs.readFileSync("src/rope-bridge/motions.txt").toString();
+  const instructions = raw.split("\n");
+  const tails = [];
+
+  for (const instruction of instructions) {
+    const [direction, steps] = instruction.split(" ");
+    for (let i = 0; i < parseInt(steps); i++) {
+      rope.moveHead(direction as Direction);
+
+      for (let k = 1; k < knotCount; k++) {
+        rope.moveKnot(rope.knots[k], rope.knots[k - 1]);
+      }
+      tails.push({ ...rope.tail });
+    }
+  }
+
+  const visited = {};
   for (const tail of tails) {
     const key = `${tail.x}-${tail.y}`;
     visited[key] = visited[key] ? visited[key] + 1 : 1;
   }
 
-  console.log(tails);
+  console.log(visited);
   return Object.keys(visited).length;
-}
-
-function move(
-  direction: string,
-  knot: Coord,
-  ref: Coord = null,
-  old: Coord = null
-) {
-  switch (direction) {
-    case "U": {
-      knot.y = old ? old.y : knot.y + 1;
-      if (knot && ref) {
-        const isDiagonal = knot.x !== ref.x;
-        if (isDiagonal) {
-          knot.x = ref.x >= knot.x ? knot.x + 1 : knot.x - 1;
-        }
-      }
-      break;
-    }
-    case "R": {
-      knot.x = old ? old.x : knot.x + 1;
-      if (knot && ref) {
-        const isDiagonal = knot.y !== ref.y;
-        if (isDiagonal) {
-          knot.y = ref.y >= knot.y ? knot.y + 1 : knot.y - 1;
-        }
-      }
-      break;
-    }
-    case "D": {
-      knot.y = old ? old.y + 1 : knot.y - 1;
-      if (knot && ref) {
-        const isDiagonal = knot.x !== ref.x;
-        if (isDiagonal) {
-          knot.x = ref.x >= knot.x ? knot.x + 1 : knot.x - 1;
-        }
-      }
-      break;
-    }
-    case "L": {
-      knot.x = old ? old.x : knot.x - 1;
-      if (knot && ref) {
-        const isDiagonal = knot.y !== ref.y;
-        if (isDiagonal) {
-          knot.y = ref.y >= knot.y ? knot.y + 1 : knot.y - 1;
-        }
-      }
-      break;
-    }
-  }
-}
-
-function isLinked(knot: Coord, ref: Coord) {
-  return Math.abs(knot.x - ref.x) <= 1 && Math.abs(knot.y - ref.y) <= 1;
 }

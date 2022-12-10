@@ -1,3 +1,3 @@
-import { main } from "./cathode-ray-tube";
+import { part1 } from "./rope-bridge";
 
-console.log(main());
+console.log(part1());
