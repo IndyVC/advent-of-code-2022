@@ -1,4 +1,3 @@
-import { part1, part2 } from "./treetop-tree-house";
+import { main } from "./cathode-ray-tube";
 
-// day 1
-console.log(part1(), part2());
+console.log(main());
